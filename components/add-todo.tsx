@@ -1,13 +1,20 @@
 import { useState } from "react"
+import { addTODO } from "../services/todo.service";
 
 export const AddTODO = (props: {addTODO: Function}) => {
     const [todo, settodo] = useState("");
 
-    const addTODOFunction = (e) => {
+    const addTODOFunction = async (e: any) => {
         e.preventDefault();
         if(todo.length > 0) {
-            props.addTODO(todo);
-            settodo('');
+            try {
+                const newToDo = await addTODO(todo, false);
+                console.log(newToDo);
+                props.addTODO({...newToDo, id: newToDo._id});
+                settodo('');
+            } catch (error) {
+                console.log(error);
+            }
         }
     }
 

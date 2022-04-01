@@ -1,22 +1,52 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
 import Image from 'next/image'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { AddTODO } from '../components/add-todo'
 import { OneTODO } from '../components/one-todo'
 import styles from '../styles/Home.module.css'
+import { useRouter } from 'next/router';
+import { whoAmI } from '../services/user.service'
+import { getMyTODOs } from '../services/todo.service'
 
 export interface todoItem {
-  id: number;
+  id: string;
   name: string;
   completed: boolean;
 }
 
 const Home: NextPage = () => {
   const [todoList, settodoList] = useState<any[]>([]);
+  const router = useRouter()
+
+  useEffect(() => {
+    checkToken();
+  }, [])
+
+  const checkToken = async () => {
+    try {
+      const data: any = await whoAmI();
+      if(!data) {
+        router.push('/login');
+      }else{
+        loadMyToDo();
+      }
+    } catch (error) {
+      router.push('/login');
+    }
+  }
+  const loadMyToDo = async () => {
+    try {
+      const data = await getMyTODOs();
+      settodoList(data.map((todo: any) => {return {...todo, id: todo._id}}));     
+    } catch (error) {
+      console.log(error);
+    }
+  }
   
-  const addTODO = (todo: string) => {
-      settodoList([...todoList, {id: Math.round(new Date()/1000), name: todo, completed: false}])
+  
+  const addTODO = (todo: todoItem) => {
+      settodoList([...todoList, todo])
   }
   const editTODO = (newTODO: string, index: number) => {
     const newTODOList = todoList.map((todo, i) => {
@@ -53,6 +83,7 @@ const Home: NextPage = () => {
 
       <div className='bg-yellow-300 py-6'>
         <h3 className='text font-bold ml-8'>TODO APP</h3>
+        <button onClick={()=> {router.push('login')}}>Login</button>
       </div>
     
       <main className={styles.main}>
