@@ -13,7 +13,7 @@ export const register = async (username: string, password: string) => {
         username,
         password
     });
-    console.log(data);
+    return data.data;
 }
 export const whoAmI = async () => {
     return await axiosClient.get('/auth/whoami');

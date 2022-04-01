@@ -1,13 +1,14 @@
-import type { NextPage } from 'next'
-import Head from 'next/head'
-import Image from 'next/image'
-import { useEffect, useState } from 'react'
-import { AddTODO } from '../components/add-todo'
-import { OneTODO } from '../components/one-todo'
-import styles from '../styles/Home.module.css'
-import { useRouter } from 'next/router';
-import { whoAmI } from '../services/user.service'
-import { getMyTODOs } from '../services/todo.service'
+import type { NextPage } from "next";
+import Head from "next/head";
+import Image from "next/image";
+import { useEffect, useState } from "react";
+import { AddTODO } from "../components/add-todo";
+import { OneTODO } from "../components/one-todo";
+import styles from "../styles/Home.module.css";
+import { useRouter } from "next/router";
+import { whoAmI } from "../services/user.service";
+import { getMyTODOs } from "../services/todo.service";
+import { resolve_accessToken, save_accessToken } from "../services/axios-client";
 
 export interface todoItem {
   id: string;
@@ -17,61 +18,69 @@ export interface todoItem {
 
 const Home: NextPage = () => {
   const [todoList, settodoList] = useState<any[]>([]);
-  const router = useRouter()
+  const router = useRouter();
 
   useEffect(() => {
     checkToken();
-  }, [])
+  }, []);
 
   const checkToken = async () => {
     try {
       const data: any = await whoAmI();
-      if(!data) {
-        router.push('/login');
-      }else{
+      if (!data) {
+        router.push("/login");
+      } else {
         loadMyToDo();
       }
     } catch (error) {
-      router.push('/login');
+      router.push("/login");
     }
+  };
+  const logout = async () => {
+      save_accessToken('');
+      router.push("/login");
   }
+
   const loadMyToDo = async () => {
     try {
       const data = await getMyTODOs();
-      settodoList(data.map((todo: any) => {return {...todo, id: todo._id}}));     
+      settodoList(
+        data.map((todo: any) => {
+          return { ...todo, id: todo._id };
+        })
+      );
     } catch (error) {
       console.log(error);
     }
-  }
-  
-  
+  };
+
   const addTODO = (todo: todoItem) => {
-      settodoList([...todoList, todo])
-  }
+    settodoList([...todoList, todo]);
+  };
   const editTODO = (newTODO: string, index: number) => {
     const newTODOList = todoList.map((todo, i) => {
-      if(i === index){
-        return {...todo, name: newTODO};
-      }else { 
+      if (i === index) {
+        return { ...todo, name: newTODO };
+      } else {
         return todo;
       }
-    })
+    });
     settodoList(newTODOList);
-  }
+  };
   const updateCompleteTodo = (index: number) => {
     const newTODOList = todoList.map((todo, i) => {
-      if(i === index){
+      if (i === index) {
         console.log(!todo.completed);
-        return {...todo, completed: !todo.completed};
-      }else { 
+        return { ...todo, completed: !todo.completed };
+      } else {
         return todo;
       }
-    })
+    });
     settodoList(newTODOList);
-  }
+  };
   const deleteTODO = (id: number) => {
     settodoList(todoList.filter((todo) => todo.id !== id));
-  }
+  };
 
   return (
     <div className={styles.container}>
@@ -81,30 +90,39 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <div className='bg-yellow-300 py-6'>
-        <h3 className='text font-bold ml-8'>TODO APP</h3>
-        <button onClick={()=> {router.push('login')}}>Login</button>
+      <div className="bg-yellow-300 py-6 flex flex-row justify-between">
+        <h3 className="text font-bold ml-8 mt-2 text-center">TODO APP</h3>
+        <div className="flex flex-row mr-8">
+          <button
+            onClick={() => {
+              logout()
+            }}
+            className="bg-green-600 rounded-md p-2"
+          >
+            Log out
+          </button>
+        </div>
       </div>
-    
+
       <main className={styles.main}>
-        <AddTODO addTODO={addTODO}/>
-        {todoList && todoList.length > 0 && 
+        <AddTODO addTODO={addTODO} />
+        {todoList &&
+          todoList.length > 0 &&
           todoList.map((todo, index) => {
             return (
               <OneTODO
-                key={index} 
+                key={index}
                 todo={todo}
                 index={index}
                 edit={editTODO}
                 delete={deleteTODO}
                 updateCompleteTodo={updateCompleteTodo}
               ></OneTODO>
-            )
-          })
-        }
+            );
+          })}
       </main>
     </div>
-  )
-}
+  );
+};
 
-export default Home
+export default Home;
