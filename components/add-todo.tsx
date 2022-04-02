@@ -1,5 +1,7 @@
 import { useState } from "react"
 import { addTODO } from "../services/todo.service";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export const AddTODO = (props: {addTODO: Function}) => {
     const [todo, settodo] = useState("");
@@ -9,11 +11,15 @@ export const AddTODO = (props: {addTODO: Function}) => {
         if(todo.length > 0) {
             try {
                 const newToDo = await addTODO(todo, false);
-                console.log(newToDo);
+                toast.success("TODO successfully added", {
+                    closeOnClick: true,
+                  });
                 props.addTODO({...newToDo, id: newToDo._id});
                 settodo('');
             } catch (error) {
-                console.log(error);
+                toast.error("TODO adding failed", {
+                    closeOnClick: true,
+                  });
             }
         }
     }

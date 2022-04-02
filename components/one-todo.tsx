@@ -1,6 +1,8 @@
 import { useState } from "react"
 import { todoItem } from "../pages";
 import { deleteTODO, updateTODO } from "../services/todo.service";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export const OneTODO = ( props : {index: number, todo: todoItem, edit: Function, delete: Function, updateCompleteTodo: Function}) => {
     const [isEditable, setisEditable] = useState(false);
@@ -11,16 +13,22 @@ export const OneTODO = ( props : {index: number, todo: todoItem, edit: Function,
         if(todo !== props.todo.name){
             try {
                 const res = await updateTODO(props.todo.id, todo, props.todo.completed);
-                console.log(res);
                 if(res.modifiedCount > 0){
+                    toast.success("TODO updated successfully", {
+                        closeOnClick: true,
+                      });
                     props.edit(todo, props.index);
                     settodo('');
                 }else{
-                    console.log('update failed');
+                    toast.error("TODO updating failed", {
+                        closeOnClick: true,
+                      });
                 }
                 setisEditable(false);
             } catch (error) {
-                console.log(error);
+                toast.error("Something went wrong. Please try again", {
+                    closeOnClick: true,
+                  });
             }
         }else{
             setisEditable(false);
@@ -29,26 +37,39 @@ export const OneTODO = ( props : {index: number, todo: todoItem, edit: Function,
     const changeCompleteState = async () => {
         try {
             const res = await updateTODO(props.todo.id, todo, !props.todo.completed);
-            console.log(res);
             if(res.modifiedCount > 0){
+                toast.success("TODO updated the state successfully", {
+                    closeOnClick: true,
+                  });
                 props.updateCompleteTodo(props.index);
             }else{
-                console.log('update failed');
+                toast.error("TODO updating failed", {
+                    closeOnClick: true,
+                  });
             }
         } catch (error) {
-            console.log(error);
+            toast.error("Something went wrong. Please try again", {
+                closeOnClick: true,
+              });
         }
     }
     const deleteFunction = async () => {
         try {
             const data: any = await deleteTODO(props.todo.id);
             if(data.deletedCount === 1){
+                toast.success("TODO deleted successfully", {
+                    closeOnClick: true,
+                  });
                 props.delete(props.todo.id)
             }else {
-                console.log('delete todo failed');
+                toast.error("TODO delete failed", {
+                    closeOnClick: true,
+                  });
             }
         } catch (error) {
-            console.log('delete todo failed', error);
+            toast.error("Something went wrong. Please try again", {
+                closeOnClick: true,
+              });
         }
     }
     return (

@@ -9,6 +9,7 @@ import { useRouter } from "next/router";
 import { whoAmI } from "../services/user.service";
 import { getMyTODOs } from "../services/todo.service";
 import { resolve_accessToken, save_accessToken } from "../services/axios-client";
+import { toast, ToastContainer } from "react-toastify";
 
 export interface todoItem {
   id: string;
@@ -44,13 +45,18 @@ const Home: NextPage = () => {
   const loadMyToDo = async () => {
     try {
       const data = await getMyTODOs();
+      toast.success("TODO successfully loaded", {
+        closeOnClick: true,
+      });
       settodoList(
         data.map((todo: any) => {
           return { ...todo, id: todo._id };
         })
       );
     } catch (error) {
-      console.log(error);
+      toast.error("TODO loading failed", {
+        closeOnClick: true,
+      });
     }
   };
 
@@ -70,7 +76,6 @@ const Home: NextPage = () => {
   const updateCompleteTodo = (index: number) => {
     const newTODOList = todoList.map((todo, i) => {
       if (i === index) {
-        console.log(!todo.completed);
         return { ...todo, completed: !todo.completed };
       } else {
         return todo;
@@ -90,6 +95,7 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
+      <ToastContainer />
       <div className="bg-yellow-300 py-6 flex flex-row justify-between">
         <h3 className="text font-bold ml-8 mt-2 text-center">TODO APP</h3>
         <div className="flex flex-row mr-8">

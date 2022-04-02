@@ -13,7 +13,8 @@ export const register = async (username: string, password: string) => {
         username,
         password
     });
-    return data.data;
+    save_accessToken(data.data.token);
+    return data.data._doc;
 }
 export const whoAmI = async () => {
     return await axiosClient.get('/auth/whoami');
